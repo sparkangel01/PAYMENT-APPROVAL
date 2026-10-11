@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAFANA BOOI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, 'Helvetica Neue', 'Segoe UI', Roboto, sans-serif;
+            padding: 1.5rem;
+            background-image:
+                radial-gradient(circle at 30% 10%, rgba(255,255,255,0.03) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.02) 0%, transparent 50%);
+        }
+
+        .glass-card {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            background: rgba(20, 20, 20, 0.65);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 48px;
+            padding: 3.2rem 2.8rem;
+            box-shadow:
+                0 30px 50px -15px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+                0 0 0 1.5px rgba(255, 255, 255, 0.02) inset;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #fff;
+            animation: float-in 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            background-image:
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 6px),
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.03) 0%, transparent 30%);
+        }
+
+        .glass-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 48px;
+            padding: 1px;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.02) 30%,
+                rgba(255, 255, 255, 0.00) 60%,
+                rgba(255, 255, 255, 0.08) 100%
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .glass-card::after {
+            content: "";
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: -1;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .site-header {
+            margin-bottom: 2.8rem;
+            text-align: center;
+        }
+
+        .site-name {
+            font-size: 2.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            background: linear-gradient(180deg, #ffffff 0%, #d4d4d4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .divider {
+            margin: 2.2rem 0 2.4rem 0;
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255,255,255,0.3) 30%,
+                rgba(255,255,255,0.7) 50%,
+                rgba(255,255,255,0.3) 70%,
+                transparent 100%);
+            opacity: 0.8;
+        }
+
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2.2rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.5rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .label {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: rgba(255, 255, 255, 0.6);
+            flex: 1 1 auto;
+            min-width: 140px;
+        }
+
+        .value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: right;
+            color: #fff;
+            letter-spacing: -0.01em;
+            flex: 0 0 auto;
+            word-break: break-word;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        .value.amount,
+        .value.auth {
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+            letter-spacing: 0.02em;
+        }
+
+        .status-pending {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.4rem 1.2rem;
+            border-radius: 100px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 15px rgba(255,255,255,0.05);
+        }
+
+        @keyframes float-in {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .glass-card {
+                padding: 2rem 1.5rem;
+                border-radius: 36px;
+            }
+            .site-name {
+                font-size: 1.8rem;
+                letter-spacing: 0.15em;
+            }
+            .value {
+                font-size: 1.2rem;
+            }
+            .label {
+                font-size: 0.8rem;
+                letter-spacing: 0.12em;
+                min-width: 120px;
+            }
+            .info-row {
+                gap: 0.4rem 1rem;
+                padding-bottom: 0.9rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .value {
+                font-size: 1rem;
+            }
+            .status-pending {
+                font-size: 0.9rem;
+                padding: 0.3rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <div class="site-header">
+            <div class="site-name">BAFANA BOOI</div>
+        </div>
+
+        <div class="divider" role="separator"></div>
+
+        <div class="info-grid">
+            <div class="info-row">
+                <span class="label">Client name</span>
+                <span class="value">Bafana Booi</span>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Amount</span>
+                <span class="value amount">ZAR 38,000,000.00</span>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Authentication fee</span>
+                <span class="value auth">ZAR 940.00</span>
+            </div>
+
+            <div class="info-row">
+                <span class="label">Status</span>
+                <span class="value">
+                    <span class="status-pending">pending</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+  </html>
