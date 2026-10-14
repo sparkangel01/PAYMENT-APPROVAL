@@ -14,7 +14,7 @@
 
         html, body { height: 100%; }
 
-        /* ---------- PURE BLACK BACKGROUND (iOS passcode style) ---------- */
+        /* ---------- DEEP BLACK BACKGROUND ---------- */
         body {
             background: #000;
             min-height: 100vh;
@@ -27,95 +27,192 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            perspective: 1600px;
         }
 
-        /* faint ambient light for the glass to refract */
+        /* ambient light for the bubble to refract */
         body::before {
             content: "";
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 800px;
-            height: 800px;
+            width: 900px;
+            height: 900px;
             background:
-                radial-gradient(circle at 30% 30%, rgba(140, 170, 220, 0.10) 0%, transparent 55%),
-                radial-gradient(circle at 70% 70%, rgba(200, 160, 210, 0.08) 0%, transparent 55%);
-            filter: blur(100px);
+                radial-gradient(circle at 30% 25%, rgba(140, 180, 240, 0.14) 0%, transparent 55%),
+                radial-gradient(circle at 75% 75%, rgba(220, 170, 230, 0.10) 0%, transparent 55%),
+                radial-gradient(circle at 50% 90%, rgba(160, 240, 220, 0.08) 0%, transparent 55%);
+            filter: blur(110px);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* ---------- iOS SYSTEM GLASS CARD ---------- */
-        /* Exact iOS material: rgba(120, 120, 128, 0.36) + blur(20px) saturate(180%) */
-        .glass-card {
+        /* ---------- FLOATING WATER BUBBLE ---------- */
+        .bubble {
             position: relative;
             width: 100%;
             max-width: 720px;
-            padding: 3rem 2.6rem;
-            border-radius: 40px;
-            background: rgba(120, 120, 128, 0.36);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            backdrop-filter: blur(20px) saturate(180%);
-            /* iOS systemMaterial hairline border */
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            /* iOS-style layered shadow */
+            /* organic egg / droplet shape using asymmetric radii */
+            border-radius: 62% 38% 55% 45% / 58% 55% 45% 42%;
+            padding: 3.4rem 3rem;
+            background:
+                radial-gradient(ellipse 70% 60% at 30% 15%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 50% at 75% 85%, rgba(180, 220, 255, 0.10) 0%, transparent 55%),
+                radial-gradient(ellipse 90% 90% at 50% 50%, rgba(120, 150, 200, 0.10) 0%, transparent 70%),
+                rgba(120, 130, 150, 0.14);
+            -webkit-backdrop-filter: blur(26px) saturate(180%) brightness(1.05);
+            backdrop-filter: blur(26px) saturate(180%) brightness(1.05);
+            border: none;
             box-shadow:
-                0 12px 40px rgba(0, 0, 0, 0.45),
-                0 2px 10px rgba(0, 0, 0, 0.25),
-                0 1px 0 rgba(255, 255, 255, 0.10) inset,
-                0 -1px 0 rgba(0, 0, 0, 0.15) inset;
+                /* outer soft glow — floating halo */
+                0 0 80px rgba(150, 190, 240, 0.18),
+                0 0 160px rgba(200, 160, 230, 0.10),
+                /* deep drop shadow — bubble floats */
+                0 40px 80px -20px rgba(0, 0, 0, 0.65),
+                0 20px 40px rgba(0, 0, 0, 0.35),
+                /* water rim — light refracting at the edge */
+                0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+                0 0 0 2px rgba(180, 220, 255, 0.06) inset,
+                0 12px 30px rgba(150, 190, 240, 0.15) inset,
+                0 -12px 30px rgba(120, 100, 160, 0.10) inset;
             color: #fff;
             z-index: 1;
             overflow: hidden;
+            animation: bubble-float 8s ease-in-out infinite;
+            transition: border-radius 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: border-radius, transform;
         }
 
-        /* top-left specular sheen — iOS glass signature */
-        .glass-card::before {
+        /* gentle floating motion — bubble rises & settles */
+        @keyframes bubble-float {
+            0%   { transform: translateY(0)   rotate(0deg); }
+            50%  { transform: translateY(-8px) rotate(0.4deg); }
+            100% { transform: translateY(0)   rotate(0deg); }
+        }
+
+        /* wobble on touch — water reacts */
+        .bubble.is-active {
+            border-radius: 55% 45% 60% 40% / 52% 58% 42% 48%;
+        }
+
+        /* top-left primary water highlight — bright wet spot */
+        .bubble::before {
             content: "";
             position: absolute;
-            top: -70%;
-            left: -40%;
-            width: 90%;
-            height: 90%;
+            top: -45%;
+            left: -25%;
+            width: 85%;
+            height: 85%;
             background: radial-gradient(
-                circle,
-                rgba(255, 255, 255, 0.14) 0%,
-                rgba(255, 255, 255, 0.05) 40%,
+                ellipse at center,
+                rgba(255, 255, 255, 0.32) 0%,
+                rgba(255, 255, 255, 0.12) 30%,
+                rgba(255, 255, 255, 0.03) 55%,
                 transparent 72%
             );
-            filter: blur(24px);
+            filter: blur(22px);
             pointer-events: none;
-            z-index: 0;
+            z-index: 2;
+            animation: highlight-drift 12s ease-in-out infinite alternate;
         }
 
-        /* dynamic specular follows touch (iOS hover/press feedback) */
+        /* bottom-right secondary reflection — soft bounce light */
+        .bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -50%;
+            right: -30%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(190, 220, 255, 0.22) 0%,
+                rgba(220, 180, 240, 0.10) 35%,
+                transparent 70%
+            );
+            filter: blur(30px);
+            pointer-events: none;
+            z-index: 2;
+            animation: highlight-drift 14s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes highlight-drift {
+            0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
+            100% { transform: translate(30px, 20px) scale(1.15); opacity: 1; }
+        }
+
+        /* ---------- MOVING WATER CAUSTICS (inside the bubble) ---------- */
+        .caustics {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.55;
+            background:
+                radial-gradient(ellipse 55% 40% at 25% 30%, rgba(180, 220, 255, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 45% at 75% 65%, rgba(255, 200, 240, 0.28) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 35% at 50% 85%, rgba(180, 255, 230, 0.22) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 50% at 15% 75%, rgba(220, 200, 255, 0.20) 0%, transparent 60%);
+            filter: blur(30px);
+            animation: caustic-flow 16s ease-in-out infinite alternate;
+            mix-blend-mode: screen;
+        }
+        @keyframes caustic-flow {
+            0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50%  { transform: translate(25px, -20px) scale(1.08) rotate(2deg); }
+            100% { transform: translate(-20px, 25px) scale(1.05) rotate(-2deg); }
+        }
+
+        /* ---------- SLIDING WATER SHEEN (constant wet look) ---------- */
+        .sheen {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            background: linear-gradient(
+                115deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.10) 45%,
+                rgba(255, 255, 255, 0.20) 50%,
+                rgba(255, 255, 255, 0.10) 55%,
+                transparent 70%
+            );
+            background-size: 250% 250%;
+            animation: sheen-slide 9s ease-in-out infinite;
+            mix-blend-mode: screen;
+        }
+        @keyframes sheen-slide {
+            0%   { background-position: 100% 0%; }
+            50%  { background-position: 0% 100%; }
+            100% { background-position: 100% 0%; }
+        }
+
+        /* dynamic specular that follows touch */
         .specular {
             position: absolute;
             inset: 0;
-            border-radius: 40px;
             background: radial-gradient(
-                500px circle at var(--mx, 30%) var(--my, 10%),
-                rgba(255, 255, 255, 0.15) 0%,
-                rgba(255, 255, 255, 0.05) 25%,
+                480px circle at var(--mx, 30%) var(--my, 15%),
+                rgba(255, 255, 255, 0.28) 0%,
+                rgba(255, 255, 255, 0.08) 25%,
                 transparent 60%
             );
             pointer-events: none;
-            z-index: 1;
+            z-index: 3;
             opacity: 0.85;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.5s ease;
             mix-blend-mode: screen;
         }
-        .glass-card.is-active .specular { opacity: 1; }
+        .bubble.is-active .specular { opacity: 1; }
 
-        /* ripple layer (soft touch feedback) */
+        /* ripple layer — water ripples on touch */
         .ripple-layer {
             position: absolute;
             inset: 0;
-            border-radius: 40px;
             overflow: hidden;
             pointer-events: none;
-            z-index: 3;
+            z-index: 4;
         }
         .ripple {
             position: absolute;
@@ -123,23 +220,24 @@
             transform: translate(-50%, -50%) scale(0);
             background: radial-gradient(
                 circle,
-                rgba(255, 255, 255, 0.24) 0%,
-                rgba(255, 255, 255, 0.08) 35%,
-                rgba(255, 255, 255, 0) 70%
+                rgba(255, 255, 255, 0.30) 0%,
+                rgba(200, 230, 255, 0.12) 30%,
+                rgba(255, 200, 240, 0.06) 50%,
+                rgba(255, 255, 255, 0) 72%
             );
             pointer-events: none;
-            animation: soft-ripple 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            animation: soft-ripple 1.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
         @keyframes soft-ripple {
             0%   { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
-            60%  { opacity: 0.3; }
+            60%  { opacity: 0.35; }
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
         }
 
         .card-inner { position: relative; z-index: 5; }
 
-        /* ---------- TYPOGRAPHY (iOS SF style) ---------- */
-        .site-header { margin-bottom: 2.2rem; text-align: center; }
+        /* ---------- TYPOGRAPHY ---------- */
+        .site-header { margin-bottom: 2.4rem; text-align: center; }
         .site-name {
             font-size: 2.35rem;
             font-weight: 700;
@@ -148,7 +246,9 @@
             color: #ffffff;
             line-height: 1.2;
             word-break: break-word;
-            text-shadow: 0 1px 20px rgba(255, 255, 255, 0.10);
+            text-shadow:
+                0 1px 20px rgba(200, 230, 255, 0.25),
+                0 0 40px rgba(180, 220, 255, 0.12);
         }
 
         .divider {
@@ -157,9 +257,9 @@
             width: 100%;
             background: linear-gradient(90deg,
                 transparent 0%,
-                rgba(255,255,255,0.08) 25%,
-                rgba(255,255,255,0.16) 50%,
-                rgba(255,255,255,0.08) 75%,
+                rgba(180, 220, 255, 0.15) 25%,
+                rgba(255, 255, 255, 0.30) 50%,
+                rgba(220, 180, 240, 0.15) 75%,
                 transparent 100%);
         }
 
@@ -167,7 +267,7 @@
         .info-grid {
             display: flex;
             flex-direction: column;
-            gap: 1.65rem;
+            gap: 1.7rem;
             margin-bottom: 2.3rem;
         }
         .info-row {
@@ -177,7 +277,7 @@
             flex-wrap: wrap;
             gap: 0.8rem 1.5rem;
             padding-bottom: 1.1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(200, 225, 255, 0.10);
         }
         .info-row:last-child { border-bottom: none; padding-bottom: 0; }
         .label {
@@ -185,7 +285,7 @@
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.16em;
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(220, 235, 255, 0.58);
             flex: 1 1 auto;
             min-width: 140px;
         }
@@ -197,6 +297,7 @@
             letter-spacing: -0.01em;
             flex: 0 0 auto;
             word-break: break-word;
+            text-shadow: 0 0 20px rgba(190, 220, 255, 0.25);
         }
         .value.amount,
         .value.auth {
@@ -204,13 +305,12 @@
             letter-spacing: 0.01em;
         }
 
-        /* ---------- iOS GLASS BUTTONS (matching the passcode circles) ---------- */
-        /* Same iOS material but for buttons: rgba(120,120,128,0.32) */
+        /* ---------- WATER DROPLET BUTTONS ---------- */
         .buttons-section {
             display: flex;
             flex-direction: column;
-            gap: 0.95rem;
-            margin-bottom: 2.1rem;
+            gap: 1rem;
+            margin-bottom: 2.2rem;
         }
         .btn-pending {
             position: relative;
@@ -219,63 +319,76 @@
             justify-content: center;
             gap: 0.8rem;
             width: 100%;
-            padding: 1.1rem 1.5rem;
+            padding: 1.15rem 1.5rem;
             font-size: 0.98rem;
             font-weight: 600;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.92);
-            background: rgba(120, 120, 128, 0.32);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: rgba(255, 255, 255, 0.95);
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
+                rgba(140, 160, 200, 0.16);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(200, 225, 255, 0.22);
+            /* subtle pill but with organic feel */
             border-radius: 100px;
             box-shadow:
-                0 1px 0 rgba(255, 255, 255, 0.10) inset,
-                0 -1px 0 rgba(0, 0, 0, 0.15) inset,
-                0 6px 18px rgba(0, 0, 0, 0.30);
+                /* outer water glow */
+                0 0 24px rgba(150, 190, 240, 0.15),
+                /* drop shadow */
+                0 6px 20px rgba(0, 0, 0, 0.35),
+                /* top water highlight */
+                0 1px 0 rgba(255, 255, 255, 0.20) inset,
+                /* bottom reflection */
+                0 -1px 0 rgba(120, 100, 160, 0.15) inset;
             cursor: not-allowed;
             user-select: none;
             overflow: hidden;
         }
+        /* inner water sheen that slides */
         .btn-pending::before {
             content: "";
             position: absolute;
-            top: -100%;
-            left: -30%;
-            width: 80%;
-            height: 250%;
-            background: radial-gradient(
-                circle,
-                rgba(255, 255, 255, 0.14) 0%,
-                rgba(255, 255, 255, 0.03) 45%,
+            inset: 0;
+            border-radius: 100px;
+            background: linear-gradient(
+                115deg,
+                transparent 35%,
+                rgba(255, 255, 255, 0.18) 48%,
+                rgba(255, 255, 255, 0.05) 55%,
                 transparent 70%
             );
-            filter: blur(12px);
+            background-size: 250% 250%;
+            animation: sheen-slide 7s ease-in-out infinite;
             pointer-events: none;
+            mix-blend-mode: screen;
         }
         .btn-pending .btn-text,
         .btn-pending .pending-dot { position: relative; z-index: 2; }
         .btn-pending .pending-dot {
             width: 8px; height: 8px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.88);
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 10px rgba(180, 220, 255, 0.8);
             animation: pulse-dot 1.8s infinite;
         }
         @keyframes pulse-dot {
-            0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.5); }
-            70%  { box-shadow: 0 0 0 9px rgba(255,255,255,0); }
-            100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+            0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.5), 0 0 10px rgba(180, 220, 255, 0.8); }
+            70%  { box-shadow: 0 0 0 9px rgba(255,255,255,0), 0 0 10px rgba(180, 220, 255, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(255,255,255,0), 0 0 10px rgba(180, 220, 255, 0.8); }
         }
 
-        /* status pill — same iOS glass */
+        /* status pill — mini water droplet */
         .status-pending {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(120, 120, 128, 0.32);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            backdrop-filter: blur(20px) saturate(180%);
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.20) 0%, transparent 55%),
+                rgba(140, 160, 200, 0.18);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            backdrop-filter: blur(16px) saturate(180%);
             padding: 0.4rem 1.15rem;
             border-radius: 100px;
             font-size: 0.92rem;
@@ -283,27 +396,28 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: rgba(255,255,255,0.95);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(200, 225, 255, 0.22);
             box-shadow:
-                0 1px 0 rgba(255,255,255,0.10) inset,
-                0 -1px 0 rgba(0,0,0,0.15) inset,
-                0 4px 14px rgba(0,0,0,0.30);
+                0 0 18px rgba(150, 190, 240, 0.15),
+                0 4px 14px rgba(0,0,0,0.30),
+                0 1px 0 rgba(255,255,255,0.20) inset,
+                0 -1px 0 rgba(120, 100, 160, 0.15) inset;
             position: relative;
             overflow: hidden;
         }
         .status-pending::before {
             content: "";
             position: absolute;
-            top: -100%;
-            left: -40%;
-            width: 80%;
-            height: 250%;
-            background: radial-gradient(
-                circle,
-                rgba(255, 255, 255, 0.14) 0%,
-                transparent 65%
+            inset: 0;
+            border-radius: 100px;
+            background: linear-gradient(
+                115deg,
+                transparent 35%,
+                rgba(255, 255, 255, 0.18) 48%,
+                transparent 70%
             );
-            filter: blur(8px);
+            background-size: 250% 250%;
+            animation: sheen-slide 6s ease-in-out infinite;
             pointer-events: none;
         }
         .status-pending .dot {
@@ -311,22 +425,27 @@
             z-index: 2;
             width: 7px; height: 7px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.92);
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 8px rgba(180, 220, 255, 0.8);
             animation: pulse-dot 1.8s infinite;
         }
 
-        /* ---------- iOS GLASS NOTE PANEL ---------- */
+        /* ---------- WATER NOTE PANEL ---------- */
         .clearance-note {
-            padding: 1.25rem 1.4rem;
-            background: rgba(120, 120, 128, 0.28);
+            padding: 1.3rem 1.5rem;
+            background:
+                radial-gradient(ellipse at 25% 20%, rgba(255, 255, 255, 0.14) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 85%, rgba(200, 220, 255, 0.08) 0%, transparent 55%),
+                rgba(140, 160, 200, 0.12);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             backdrop-filter: blur(20px) saturate(180%);
             border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(200, 225, 255, 0.16);
             box-shadow:
-                0 1px 0 rgba(255,255,255,0.08) inset,
-                0 -1px 0 rgba(0,0,0,0.15) inset,
-                0 6px 22px rgba(0,0,0,0.28);
+                0 0 30px rgba(150, 190, 240, 0.10),
+                0 6px 22px rgba(0,0,0,0.30),
+                0 1px 0 rgba(255,255,255,0.16) inset,
+                0 -1px 0 rgba(120, 100, 160, 0.12) inset;
             display: flex;
             align-items: flex-start;
             gap: 0.85rem;
@@ -336,14 +455,16 @@
         .clearance-note::before {
             content: "";
             position: absolute;
-            top: -80%; left: -30%;
-            width: 80%; height: 220%;
-            background: radial-gradient(
-                circle,
-                rgba(255, 255, 255, 0.10) 0%,
-                transparent 65%
+            inset: 0;
+            background: linear-gradient(
+                115deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.10) 48%,
+                rgba(255, 255, 255, 0.03) 55%,
+                transparent 70%
             );
-            filter: blur(20px);
+            background-size: 250% 250%;
+            animation: sheen-slide 8s ease-in-out infinite;
             pointer-events: none;
         }
         .note-icon {
@@ -352,15 +473,16 @@
             flex-shrink: 0;
             width: 20px; height: 20px;
             margin-top: 2px;
-            opacity: 0.85;
+            opacity: 0.9;
             stroke: #ffffff;
+            filter: drop-shadow(0 0 6px rgba(180, 220, 255, 0.5));
         }
         .note-text {
             position: relative;
             z-index: 2;
             font-size: 0.94rem;
             line-height: 1.55;
-            color: rgba(255,255,255,0.85);
+            color: rgba(235, 245, 255, 0.88);
             font-weight: 400;
             letter-spacing: 0.005em;
         }
@@ -368,9 +490,7 @@
 
         /* ---------- RESPONSIVE ---------- */
         @media (max-width: 620px) {
-            .glass-card { padding: 2.2rem 1.6rem; border-radius: 34px; }
-            .specular,
-            .ripple-layer { border-radius: 34px; }
+            .bubble { padding: 2.4rem 1.7rem; }
             .site-name { font-size: 1.8rem; letter-spacing: 0.16em; }
             .value { font-size: 1.2rem; }
             .label { font-size: 0.76rem; letter-spacing: 0.14em; min-width: 120px; }
@@ -388,12 +508,22 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+            .bubble,
+            .bubble::before,
+            .bubble::after,
+            .caustics,
+            .sheen,
+            .btn-pending::before,
+            .status-pending::before,
+            .clearance-note::before { animation: none; }
             .pending-dot, .status-pending .dot { animation: none; }
         }
     </style>
 </head>
 <body>
-    <div class="glass-card" id="card">
+    <div class="bubble" id="card">
+        <div class="caustics"></div>
+        <div class="sheen"></div>
         <div class="specular"></div>
         <div class="ripple-layer" id="rippleLayer"></div>
 
@@ -465,7 +595,9 @@
                 card.style.setProperty('--my', my + '%');
             }
 
-            function resetPointer() { card.classList.remove('is-active'); }
+            function resetPointer() {
+                card.classList.remove('is-active');
+            }
 
             /* mouse */
             card.addEventListener('mouseenter', () => card.classList.add('is-active'));
@@ -485,7 +617,7 @@
             card.addEventListener('touchend', resetPointer, { passive: true });
             card.addEventListener('touchcancel', resetPointer, { passive: true });
 
-            /* soft iOS ripple */
+            /* water ripple on touch */
             function spawnRipple(x, y) {
                 const rect = card.getBoundingClientRect();
                 const px = x - rect.left;
@@ -496,7 +628,7 @@
                     Math.hypot(px, rect.height - py),
                     Math.hypot(rect.width - px, rect.height - py)
                 );
-                const size = maxDist * 2.2;
+                const size = maxDist * 2.4;
 
                 const ripple = document.createElement('span');
                 ripple.className = 'ripple';
@@ -510,7 +642,7 @@
                 card.style.setProperty('--mx', ((px / rect.width) * 100) + '%');
                 card.style.setProperty('--my', ((py / rect.height) * 100) + '%');
 
-                setTimeout(() => ripple.remove(), 1600);
+                setTimeout(() => ripple.remove(), 1900);
             }
 
             card.addEventListener('pointerdown', (e) => {
